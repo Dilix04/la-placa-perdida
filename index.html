@@ -1,0 +1,247 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#2b1d12">
+<title>La placa perdida</title>
+<style>
+:root{
+  --paper:#f3e7cf; --paper2:#e9d8b6; --ink:#2b1d12; --ink2:#5a4330; --accent:#8a3b1e;
+  --ok:#3f6b2f; --bad:#9b2c1c; --line:#c9b38c; --shadow:0 2px 10px rgba(43,29,18,.18);
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{background:#2b1d12;color:var(--ink);font-family:Georgia,"Times New Roman",serif;font-size:17px;line-height:1.5;min-height:100vh}
+.wrap{max-width:520px;margin:0 auto;padding:16px 16px 40px}
+.card{background:var(--paper);border-radius:6px;padding:20px 18px;box-shadow:var(--shadow);border:1px solid var(--line);position:relative}
+.card+.card{margin-top:14px}
+h1{font-size:28px;line-height:1.15;margin:0 0 6px;letter-spacing:.5px}
+h2{font-size:22px;margin:0 0 8px}
+.kicker{font-variant:small-caps;letter-spacing:2px;color:var(--accent);font-size:14px;margin-bottom:4px}
+p{margin:0 0 12px}
+.muted{color:var(--ink2);font-size:15px}
+.btn{display:block;width:100%;padding:14px;margin-top:12px;border:0;border-radius:4px;background:var(--ink);color:var(--paper);font:inherit;font-size:18px;cursor:pointer}
+.btn.alt{background:transparent;color:var(--ink);border:1.5px solid var(--ink)}
+.btn.small{display:inline-block;width:auto;padding:8px 14px;font-size:15px;margin-top:6px}
+.btn:disabled{opacity:.5}
+input[type=text]{width:100%;padding:13px 12px;font:inherit;font-size:20px;border:1.5px solid var(--ink2);border-radius:4px;background:#fffaf0;color:var(--ink);text-transform:uppercase;letter-spacing:2px}
+.msg{margin-top:10px;min-height:24px;font-size:16px}
+.msg.bad{color:var(--bad)} .msg.ok{color:var(--ok)}
+.pista{background:#fffaf0;border:1.5px dashed var(--accent);padding:14px;border-radius:4px;margin:12px 0}
+.pista b{color:var(--accent)}
+.progress{display:flex;gap:6px;margin:0 0 14px}
+.progress span{flex:1;height:6px;border-radius:3px;background:#5a4330}
+.progress span.done{background:var(--paper2)}
+.progress span.now{background:var(--accent)}
+.top{display:flex;justify-content:space-between;align-items:center;color:var(--paper2);font-size:14px;margin-bottom:10px}
+.top button{background:none;border:1px solid var(--paper2);color:var(--paper2);border-radius:4px;padding:6px 10px;font:inherit;font-size:14px}
+ol.steps{padding-left:22px;margin:0 0 12px} ol.steps li{margin-bottom:6px}
+.grid{display:grid;grid-template-columns:repeat(9,1fr);gap:3px;margin:12px 0;user-select:none;-webkit-user-select:none}
+.grid div{aspect-ratio:1;display:flex;align-items:center;justify-content:center;background:#fffaf0;border:1px solid var(--line);font-weight:bold;font-size:clamp(14px,4.4vw,20px);border-radius:3px;cursor:pointer}
+.grid div.on{background:var(--ink2);color:var(--paper);border-color:var(--ink2)}
+.words{display:flex;flex-wrap:wrap;gap:6px;margin:6px 0 4px}
+.words span{font-size:14px;padding:2px 8px;border:1px solid var(--line);border-radius:20px;background:#fffaf0}
+.morse{display:grid;grid-template-columns:repeat(4,1fr);gap:4px 10px;font-family:"Courier New",monospace;font-size:15px;margin:10px 0}
+.sus{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:10px 0}
+.sus button{background:#fffaf0;border:1.5px solid var(--line);border-radius:6px;padding:12px 8px;font:inherit;color:var(--ink);text-align:center;cursor:pointer}
+.sus button.sel{border-color:var(--accent);box-shadow:0 0 0 2px var(--accent) inset}
+.face{width:54px;height:54px;border-radius:50%;margin:0 auto 6px;background:radial-gradient(circle at 50% 38%,#d9c29b 0 30%,#7a5c3e 31% 100%);display:flex;align-items:flex-end;justify-content:center;color:var(--paper);font-size:13px;padding-bottom:4px}
+.sus small{display:block;color:var(--ink2);font-size:13px}
+.big{font-size:42px;text-align:center;margin:6px 0}
+.sello{position:absolute;top:14px;right:14px;transform:rotate(12deg);border:2px solid var(--accent);color:var(--accent);padding:2px 8px;font-size:12px;letter-spacing:2px;border-radius:3px;opacity:.8}
+.foot{color:#8c7457;text-align:center;font-size:12px;margin-top:22px}
+.letter{font-style:italic}
+.hide{display:none}
+</style>
+</head>
+<body>
+<div class="wrap" id="app"></div>
+<div class="foot" id="foot">Fotografía La Luz · 1890</div>
+<script>
+const BLOBS={"vista": ["vfWLwWaT0BmV0HpKC/HNDdJWAQ7KEk4/y6LstH8sUuSN6tFj+E5Z0AgvPe2IDJVtEGm4/3PJdXBmqd2tgSWPUeKdO+C5jPc77pT8a3oX4UgOFzJYGpVuaPN1PkAsmDWCrbZYZFedimHE/kao/zZ3kM4QmlGQV8ubLgECtRLjEw75fLBHKiEMnRpmMzW2NhyDeRT7IYzxHFdSzMbxJ7KpXsOp2jqpl2NcN3FSfYzp5H7w6g4DWTam1FUMplRoK23978TeEdSS3glpYwVn587eVgV+gUL+fmmwOqaqrAd3DGqSic1/2gbrOO4zVEwsi1Q7IHwde7waXg==", "vfWLwWaT0BmV0HpKC/HNDdJWAQ7KEk4/y6LstH8sUuSN6tFj+E5Z0AgvPe2IDJVtEGm4/3PJdXBmqd2tgSWPUeKdO+C5jPc77pT8a3oX4UgOFzJYGpVuaPN1PkAsmDWCrbZYZFedimHE/kao/zZ3kM4QmlGQV8ubLgECtRLjEw75fLBHKiEMnRpmMzW2NhyDeRT7IYzxHFdSzMbxJ7KpXsOp2jqpl2NcN3FSfYzp5H7w6g4DWTam1FUMplRoK23978TeEdSS3glpYwVn587eVgV+gUL+fmmwOqaqrAd3DGqSic1/2gbrOO4zVEwsi1Q7IHwde7waXg=="], "olfato": ["FgSuSNJhyEFIKdZ43zRupjiQ6eNPsruukBumWEynDn10JSuLNRd2B9x4MObOrgGawma0MS1XW6YJPOch3887o0qXelIpmf7fDTQ8mwfHOJYT2bvZwy/h5rBBV8NIWkOPXPk8O1WobJYK3254VFgc31pfZigYj5bufBpFCiaweQOl7OdagDQdvp1K/QkJKbq8kkFWn0QDC/k3lzpHK8Gnvdk+8PL+oSucoyzZrTrugIYM/KyEDTGHyuX20JM36DdmHEDbUA=="], "gusto": ["Il02nFAZ3hIS006g4VnxdGMeXnKoqCI6pHcx+sJJXYDhI8o1IsHZS/tXUO6twWVfE/LS/ZiSUWAmVdGA7An7kTR90olyK8FBU6HowhYXkkE3Tbp0RN3qZAOFV3UkW8+GoYvjBzcmSsc+kyrGwY7XnXRXnWyAf4wC22fnKn73OagutOEqmWajpJnF1yelpxIT7iWHNk8wnXsPlfSVXJcPrNtMQ1Fxjc2XF61J56WZ+3qcxgvZs0l77Amr4FZKsfU8jXUIFctv78g="], "oido": ["7xd9LQc/FTMTWrej0sgt+LKhbiAdnwFKWYsrpVtt80RlYpjpaF2gNjHZfw0fCq1KidA+6TY9s7QMr8xUdIoXDMuqb6M2dFQMvAlr3hlTREjK1o92HVfyvinprgf4DqhUiHZcuRmdqJT8ymb4MFMz5kbgNHq+W4uQvw+9evKWFXsedRiF6Ot8/KLyuCBXS4ejZXzhvFQHCnBWTlPdgeaFiKqMbbxDpFak8YOg/Y2Oikjsc8kLb+YUEBVAYjCkzhQ5Jk4D8Dk="], "tacto": ["MN3WOf8vjHeByxqaw7H6/6p+/ioQqij9s8XvcvIjqvlc1FwCpCx6kjK5Syem7FKMEs3j+fdpd/Z/B74XZVtFynQSSW+6JDg2qrpSckF+WlhycBfHOde2JwHI9RFmDHv5tywG7BbzClXbTepJQuAP6OClyDQJW/4cK9AOTC2ys9lsqz0kx4o+CqkdTczn7fCyMwANrIbxG4/+jw8jppc/kgUJXa6uEPbqap18wgAw9xS8wQq1LwBKbzvF1fN20MvVIN75gDKa"], "acusa": ["329M3NLSA9ixN84G"], "final": ["qnYqsiV1jg3NRG/t", "nyWNGEyDS9GO9flw", "NqYe5P6rRZ9sWaP5", "ooYzUjtZyLNFlsFE", "ooYzUjtZyLNFlsFE", "wmB3bIasJj6v2dmZ"], "motivo": "YYyM9OGVhjvLZqYMuJ8zwQTc4oEMncZe7/z7E1iwylV2i07SmA32PmUFLY6IgpAZDoxI6kah2QSo40/HD7N7dL87wjfPUYqySt3KgP0eWwlQZjQPoMzvNfGwEbxuMAy0CwC4KlfBUUj1xIdInvD8aMuY65hOy8dJ8HXR6ygCCZ9LbvTc9FE="};
+const GRID=["EOENFOQUE","SBROOCCRI","BJEVTAIEO","REVIOMCTT","OTETEANEA","PILATRMRR","OVAGNAORT","SODEELOAE","EUONLZZCR"];
+const WORDS=["CAMARA","CARRETE","RETRATO","NEGATIVO","ENFOQUE","REVELADO","OBJETIVO","ZOOM","POSE","LENTE","FOTO"];
+const MORSE_WORD="SEPIA";
+const ORDERS={luz:["vista","olfato","gusto","oido","tacto"],sombra:["oido","tacto","vista","gusto","olfato"]};
+const SUSPECTS=[
+ {id:"aurelia",name:"Aurelia Luz",job:"Fotógrafa y dueña del estudio"},
+ {id:"ferran",name:"Ferrán Coll",job:"Coleccionista de antigüedades"},
+ {id:"severino",name:"Don Severino Prado",job:"Alcalde"},
+ {id:"tomas",name:"Tomás Ribas",job:"Aprendiz del estudio"}];
+
+const STAGES={
+ vista:{icon:"👁",sense:"Vista",title:"El cuarto de revelado",
+  body:`<p>En el cuarto de revelado alguien ha dejado un negativo lleno de letras. Escondidas entre ellas hay 11 palabras del oficio.</p>
+  <p>Tocad las letras para marcarlas. Cuando tengáis todas las palabras, <b>las letras que sobran</b>, leídas en orden, os dan la respuesta.</p>
+  <div class="words">${WORDS.map(w=>`<span>${w}</span>`).join("")}</div>
+  <div class="grid" id="grid"></div>
+  <p class="muted">Las palabras pueden ir en horizontal, vertical o diagonal, y también al revés.</p>`,
+  hint:"Leed las letras que sobran de izquierda a derecha y de arriba abajo. Son tres palabras: lo que significa «fotografía» en griego."},
+ olfato:{icon:"👃",sense:"Olfato",title:"Los frascos del laboratorio",
+  body:`<p>En la mesa del laboratorio hay <b>5 frascos numerados</b>. No miréis dentro: solo se huelen.</p>
+  <ol class="steps"><li>Oled los frascos en orden, del 1 al 5.</li><li>Adivinad qué es cada olor.</li><li>La <b>inicial</b> de cada olor, en orden, forma la palabra clave.</li></ol>`,
+  hint:"Es lo que robaron: el soporte de cristal o metal donde se hacían las primeras fotos."},
+ gusto:{icon:"👅",sense:"Gusto",title:"La merienda del fotógrafo",
+  body:`<p>El fotógrafo dejó su merienda a medias: <b>5 platitos numerados</b>.</p>
+  <ol class="steps"><li>Uno del equipo cierra los ojos (o se pone la venda) y otro le da a probar cada platito.</li><li>Turnaos para que pruebe más de una persona.</li><li>La <b>inicial</b> de cada sabor, del 1 al 5, forma la palabra clave.</li></ol>
+  <p class="muted">Quien tenga alguna alergia, que avise antes al inspector.</p>`,
+  hint:"Es un fogonazo de luz que ayuda a hacer fotos a oscuras."},
+ oido:{icon:"👂",sense:"Oído",title:"El telegrama",
+  body:`<p>Ha llegado un telegrama urgente para el inspector, pero solo se puede escuchar. Subid el volumen.</p>
+  <button class="btn" id="play">▶ Escuchar el telegrama</button>
+  <button class="btn alt small" id="slow">Escuchar más despacio</button>
+  <p class="muted" style="margin-top:10px">Pitido corto = punto (·). Pitido largo = raya (—). Hay una pausa entre letras.</p>
+  <div class="morse">${Object.entries({A:".-",B:"-...",C:"-.-.",D:"-..",E:".",F:"..-.",G:"--.",H:"....",I:"..",J:".---",K:"-.-",L:".-..",M:"--",N:"-.",O:"---",P:".--.",Q:"--.-",R:".-.",S:"...",T:"-",U:"..-",V:"...-",W:".--",X:"-..-",Y:"-.--",Z:"--.."}).map(([k,v])=>`<span>${k} ${v.replace(/\./g,"·").replace(/-/g,"—")}</span>`).join("")}</div>`,
+  hint:"Son 5 letras y es el color de las fotos antiguas."},
+ tacto:{icon:"✋",sense:"Tacto",title:"Los calcetines del baúl",
+  body:`<p>En el baúl del estudio hay <b>4 calcetines numerados</b>, cada uno con un objeto dentro.</p>
+  <ol class="steps"><li>Meted la mano sin mirar dentro del calcetín.</li><li>Adivinad qué objeto es.</li><li>La <b>inicial</b> de cada objeto, del 1 al 4, forma la palabra clave.</li></ol>`,
+  hint:"Es lo que usa todo buen detective para ver los detalles pequeños."}
+};
+
+/* ---------- utilidades ---------- */
+function norm(s){return s.toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g,"").replace(/[^a-z0-9]/g,"")}
+function fnv(s){let h=2166136261>>>0;for(const ch of s){h^=ch.codePointAt(0);h=Math.imul(h,16777619)>>>0}return h}
+function dec(key,b64){try{const bin=atob(b64);const n=bin.length;let x=fnv(key)||1;const out=new Uint8Array(n);
+ for(let i=0;i<n;i++){x^=(x<<13)>>>0;x>>>=0;x^=x>>>17;x^=(x<<5)>>>0;x>>>=0;out[i]=bin.charCodeAt(i)^(x&255)}
+ return JSON.parse(new TextDecoder().decode(out))}catch(e){return null}}
+function tryAnswer(sid,ans){const k=sid+":"+norm(ans);for(const b of BLOBS[sid]){const r=dec(k,b);if(r)return r}return null}
+const KEY="placa-perdida-v1";
+let S;
+function load(){try{S=JSON.parse(localStorage.getItem(KEY))}catch(e){S=null}if(!S)S={team:null,idx:0,solved:{},fails:{},acc:null,fin:false,grid:[]}}
+function save(){try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}}
+const $=s=>document.querySelector(s);
+const app=$("#app");
+function hhmm(t){const d=new Date(t);return d.toLocaleTimeString("es-ES",{hour:"2-digit",minute:"2-digit",second:"2-digit"})}
+function topbar(){const order=ORDERS[S.team];return `<div class="top"><span>Equipo ${S.team==="luz"?"Luz":"Sombra"}</span><button id="exp">📁 Expediente</button></div>
+ <div class="progress">${order.map((s,i)=>`<span class="${S.solved[s]?"done":(i===S.idx?"now":"")}"></span>`).join("")}</div>`}
+
+/* ---------- pantallas ---------- */
+function render(){
+ window.scrollTo(0,0);
+ if(!S.team)return intro();
+ const order=ORDERS[S.team];
+ if(S.view==="exp")return expediente();
+ if(S.idx<order.length)return stage(order[S.idx]);
+ if(!S.acc)return acusacion();
+ if(!S.fin)return carta();
+ return final();
+}
+function intro(){
+ app.innerHTML=`<div class="card"><div class="kicker">Otoño de 1890</div><h1>La placa perdida</h1>
+ <p>Mañana se inaugura la primera exposición de fotografía del pueblo. La pieza estrella es la placa del primer daguerrotipo que se hizo aquí.</p>
+ <p>Esta noche, a las 9, alguien la ha robado del estudio <i>Fotografía La Luz</i>. El inspector necesita vuestra ayuda.</p>
+ <p>Superad las 5 pruebas de los sentidos para reunir pistas. Después, acusad al culpable. <b>Solo tenéis una acusación.</b></p>
+ <p class="muted">Usad un solo móvil por equipo y no cerréis esta pestaña. Si se cierra, al volver a abrirla seguiréis donde lo dejasteis.</p></div>
+ <div class="card"><h2>¿Qué equipo sois?</h2>
+ <button class="btn" data-t="luz">☀ Equipo Luz</button><button class="btn" data-t="sombra">☾ Equipo Sombra</button></div>`;
+ app.querySelectorAll("[data-t]").forEach(b=>b.onclick=()=>{S.team=b.dataset.t;S.idx=0;save();render()});
+}
+function stage(sid){
+ const st=STAGES[sid];const order=ORDERS[S.team];
+ app.innerHTML=topbar()+`<div class="card"><div class="kicker">Prueba ${S.idx+1} de ${order.length} · ${st.sense}</div>
+ <h2>${st.icon} ${st.title}</h2>${st.body}</div>
+ <div class="card" id="ansCard"><label for="ans"><b>Palabra clave</b></label>
+ <input type="text" id="ans" autocomplete="off" autocapitalize="characters" spellcheck="false" placeholder="Escribid aquí">
+ <button class="btn" id="go">Comprobar</button><div class="msg" id="msg"></div>
+ <div id="hintBox" class="${(S.fails[sid]||0)>=3?"":"hide"}"><button class="btn alt small" id="hintBtn">Pedir una pista</button><p class="muted hide" id="hint" style="margin-top:8px">${st.hint}</p></div></div>`;
+ bindTop();
+ if(sid==="vista")buildGrid();
+ if(sid==="oido"){$("#play").onclick=()=>playMorse(1);$("#slow").onclick=()=>playMorse(1.8)}
+ $("#hintBtn").onclick=()=>$("#hint").classList.remove("hide");
+ const go=()=>{const v=$("#ans").value;if(!norm(v))return;const r=tryAnswer(sid,v);
+  if(r){S.solved[sid]=r;save();solvedView(sid,r)}
+  else{S.fails[sid]=(S.fails[sid]||0)+1;save();const m=$("#msg");m.className="msg bad";
+   m.textContent=["No es correcto. Probad otra vez.","Tampoco. Revisad cada paso.","Casi… o no. Seguid intentándolo."][(S.fails[sid]-1)%3];
+   if(S.fails[sid]>=3)$("#hintBox").classList.remove("hide")}};
+ $("#go").onclick=go;$("#ans").onkeydown=e=>{if(e.key==="Enter")go()};
+}
+function solvedView(sid,r){
+ const st=STAGES[sid];const order=ORDERS[S.team];
+ app.innerHTML=topbar()+`<div class="card"><div class="sello">RESUELTO</div><div class="kicker">${st.sense}</div><h2>¡Correcto!</h2>
+ <div class="pista"><b>Nueva pista para el expediente:</b><br>${r.pista}</div>
+ <p class="muted">${r.dato}</p>
+ <p class="muted">Recordad: las pistas solas no lo dicen todo. Hablad con los demás vecinos y sus chismes.</p>
+ <button class="btn" id="next">${S.idx+1<order.length?"Siguiente prueba →":"Ir a la acusación →"}</button></div>`;
+ bindTop();
+ $("#next").onclick=()=>{S.idx++;save();render()};
+}
+function pistasHTML(){const order=ORDERS[S.team];const list=order.filter(s=>S.solved[s]).map(s=>`<div class="pista"><b>${STAGES[s].icon} ${STAGES[s].sense}:</b> ${S.solved[s].pista}</div>`);
+ if(order.every(s=>S.solved[s])){const m=dec("motivo:todo",BLOBS.motivo);if(m)list.push(`<div class="pista"><b>🗑 Hallazgo final:</b> ${m.pista}</div>`)}
+ return list.length?list.join(""):`<p class="muted">Todavía no tenéis pistas. Superad pruebas para conseguirlas.</p>`}
+function susHTML(sel){return `<div class="sus">${SUSPECTS.map(s=>`<button data-s="${s.id}" class="${sel===s.id?"sel":""}"><div class="face">${s.name.split(" ").filter(w=>w[0]===w[0].toUpperCase()).map(w=>w[0]).join("").slice(0,2)}</div>${s.name}<small>${s.job}</small></button>`).join("")}</div>`}
+function expediente(){
+ app.innerHTML=`<div class="top"><span>Expediente del caso</span><button id="back">← Volver</button></div>
+ <div class="card"><h2>📁 Sospechosos</h2>${susHTML()}</div>
+ <div class="card"><h2>Pistas reunidas</h2>${pistasHTML()}</div>`;
+ app.querySelectorAll(".sus button").forEach(b=>b.disabled=true);
+ $("#back").onclick=()=>{S.view=null;save();render()};
+}
+function bindTop(){const e=$("#exp");if(e)e.onclick=()=>{S.view="exp";save();render()}}
+function acusacion(){
+ let sel=null;
+ app.innerHTML=topbar()+`<div class="card"><div class="kicker">El momento de la verdad</div><h2>⚖ La acusación</h2>
+ <p>Habéis superado todas las pruebas. Además, al registrar el estudio el inspector ha encontrado algo más:</p>
+ ${(()=>{const m=dec("motivo:todo",BLOBS.motivo);return m?`<div class="pista"><b>🗑 Hallazgo final:</b> ${m.pista}</div>`:""})()}
+ <p>Revisad el expediente y los chismes de vuestro equipo. Podéis negociar con el otro equipo si os falta información. <b>Solo podéis acusar una vez.</b></p>
+ ${susHTML()}<button class="btn" id="acc" disabled>Acusar</button></div>`;
+ bindTop();
+ app.querySelectorAll(".sus button").forEach(b=>b.onclick=()=>{sel=b.dataset.s;app.querySelectorAll(".sus button").forEach(x=>x.classList.toggle("sel",x===b));$("#acc").disabled=false;$("#acc").textContent="Acusar a "+SUSPECTS.find(s=>s.id===sel).name});
+ $("#acc").onclick=()=>{const name=SUSPECTS.find(s=>s.id===sel).name;if(!confirm("¿Seguro que acusáis a "+name+"? No hay vuelta atrás."))return;
+  const r=tryAnswer("acusa",sel);S.acc={who:name,ok:!!r,t:Date.now()};save();accResult()};
+}
+function accResult(){
+ const a=S.acc;
+ app.innerHTML=`<div class="card"><div class="sello">${a.ok?"CASO CERRADO":"ERROR"}</div><div class="kicker">Acusación registrada · ${hhmm(a.t)}</div>
+ ${a.ok?`<h2>¡Habéis atrapado a la culpable!</h2><p>Aurelia Luz, arruinada, escondió la placa para cobrar el seguro. Dejó el guante con las iniciales del coleccionista para despistar, pero el olor a lavanda y la copa de vino la delataron.</p>`
+ :`<h2>Os habéis equivocado</h2><p>Habéis acusado a ${a.who}, pero no fue quien robó la placa. El verdadero culpable sigue sin descubrirse… quizá el otro equipo tenga más suerte.</p>`}
+ <p><b>Enseñad esta pantalla al inspector.</b> Quien acusó correctamente primero gana el misterio.</p>
+ <button class="btn" id="cont">El inspector tiene algo que deciros →</button></div>`;
+ $("#cont").onclick=()=>{a.seen=true;save();carta()};
+}
+function carta(){
+ if(S.acc&&!S.acc.seen)return accResult();
+ app.innerHTML=`<div class="card"><div class="kicker">Una carta lacrada</div><h2>✉ Para la maestra</h2>
+ <div class="letter"><p>Querida maestra:</p>
+ <p>Hace muchos años te hice la primera fotografía de este pueblo y te prometí que la placa sería tuya el día que cumplieras 30. Hoy he venido a cumplirlo.</p>
+ <p>Firmado: <b>Daniel Guevara Renoir</b></p>
+ <p>P. D.: Mi nombre esconde a quien inventó la primera foto. Juntad el principio de cada parte.</p></div></div>
+ <div class="card"><label for="ans"><b>¿Quién es en realidad el inspector?</b></label>
+ <input type="text" id="ans" autocomplete="off" autocapitalize="characters" spellcheck="false" placeholder="Su verdadero apellido">
+ <button class="btn" id="go">Comprobar</button><div class="msg" id="msg"></div>
+ <p class="muted hide" id="hint">Pista: el primer proceso fotográfico lleva su nombre. Da… Gue… R…</p></div>`;
+ let f=0;
+ const go=()=>{const v=$("#ans").value;if(!norm(v))return;if(tryAnswer("final",v)){S.fin=true;save();final()}else{f++;$("#msg").className="msg bad";$("#msg").textContent="No es él. Mirad bien su nombre.";if(f>=2)$("#hint").classList.remove("hide")}};
+ $("#go").onclick=go;$("#ans").onkeydown=e=>{if(e.key==="Enter")go()};
+}
+function final(){
+ app.innerHTML=`<div class="card" style="text-align:center"><div class="kicker">Caso resuelto</div>
+ <div class="big">📷</div><h1>¡Era Daguerre!</h1>
+ <p>DA-niel GUE-vara R-enoir: el inventor del daguerrotipo ha venido en persona a devolver la placa a su dueña.</p>
+ <p><b>¡Feliz 30 cumpleaños!</b></p>
+ <div class="pista" style="text-align:left">La maestra debe acercarse al inspector y pedirle <b>su billete de tren</b>. En él está el destino donde espera la placa.</div></div>`;
+}
+
+/* ---------- sopa de letras ---------- */
+function buildGrid(){const g=$("#grid");if(!S.grid||S.grid.length!==81)S.grid=Array(81).fill(0);
+ g.innerHTML=GRID.join("").split("").map((c,i)=>`<div data-i="${i}" class="${S.grid[i]?"on":""}">${c}</div>`).join("");
+ g.querySelectorAll("div").forEach(d=>d.onclick=()=>{const i=+d.dataset.i;S.grid[i]=S.grid[i]?0:1;d.classList.toggle("on");save()})}
+
+/* ---------- morse ---------- */
+const MC={A:".-",B:"-...",C:"-.-.",D:"-..",E:".",F:"..-.",G:"--.",H:"....",I:"..",J:".---",K:"-.-",L:".-..",M:"--",N:"-.",O:"---",P:".--.",Q:"--.-",R:".-.",S:"...",T:"-",U:"..-",V:"...-",W:".--",X:"-..-",Y:"-.--",Z:"--.."};
+let actx=null,playing=false;
+function playMorse(k){if(playing)return;try{actx=actx||new (window.AudioContext||window.webkitAudioContext)()}catch(e){alert("Este móvil no puede reproducir sonido. Pedid ayuda al inspector.");return}
+ actx.resume&&actx.resume();playing=true;const u=0.12*k;let t=actx.currentTime+0.3;
+ const beep=(d)=>{const o=actx.createOscillator(),g=actx.createGain();o.frequency.value=650;o.type="sine";g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(.5,t+.01);g.gain.setValueAtTime(.5,t+d-.01);g.gain.linearRampToValueAtTime(0,t+d);o.connect(g).connect(actx.destination);o.start(t);o.stop(t+d+.02);t+=d+u};
+ for(const ch of MORSE_WORD){for(const s of MC[ch])beep(s==="."?u:3*u);t+=2*u*1.5}
+ const total=(t-actx.currentTime)*1000;$("#play")&&($("#play").textContent="🔊 Sonando…");
+ setTimeout(()=>{playing=false;const p=$("#play");if(p)p.textContent="▶ Escuchar otra vez"},total);}
+
+/* ---------- reinicio oculto (inspector): 5 toques en el pie ---------- */
+let taps=0,tt;$("#foot").onclick=()=>{taps++;clearTimeout(tt);tt=setTimeout(()=>taps=0,1500);if(taps>=5){taps=0;if(confirm("¿Reiniciar la partida en este móvil?")){try{localStorage.removeItem(KEY)}catch(e){}load();render()}}};
+
+load();render();
+</script>
+</body>
+</html>
